@@ -214,11 +214,17 @@ h2 {
   padding: 16px;
 }
 
+.skill-category.featured {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.35);
+  grid-column: span 2;
+}
+
 .skill-category h3 {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
   margin-bottom: 10px;
 }
