@@ -301,6 +301,30 @@ footer {
    CHATBOT
 ════════════════════════════════════════ */
 
+#chat-label {
+  position: fixed;
+  bottom: 38px;
+  right: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s;
+  z-index: 999;
+}
+
+#chat-toggle.active + #chat-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
 #chat-toggle {
   position: fixed;
   bottom: 28px;
