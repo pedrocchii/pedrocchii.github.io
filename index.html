@@ -7,7 +7,7 @@
   <meta name="description" content="Técnico de Sistemas y Desarrollador Junior especializado en implementación de IA. Barcelona." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -47,7 +47,7 @@
 
     <!-- ── SOBRE MÍ ── -->
     <section id="about">
-      <div class="container">
+      <div class="container" data-animate>
         <h2>Sobre mí</h2>
         <p class="about-text">
           Técnico de Sistemas (ASIX) con experiencia práctica en desarrollo de aplicaciones móviles
@@ -61,7 +61,7 @@
 
     <!-- ── EXPERIENCIA ── -->
     <section id="experience">
-      <div class="container">
+      <div class="container" data-animate>
         <h2>Experiencia</h2>
         <div class="experience-list">
 
@@ -113,7 +113,7 @@
 
     <!-- ── HABILIDADES ── -->
     <section id="skills">
-      <div class="container">
+      <div class="container" data-animate>
         <h2>Habilidades</h2>
         <div class="skills-grid">
           <div class="skill-category featured">
@@ -174,11 +174,12 @@
 
     <!-- ── PROYECTOS ── -->
     <section id="projects">
-      <div class="container">
+      <div class="container" data-animate>
         <h2>Proyectos</h2>
         <div class="projects-grid">
 
           <div class="project-card">
+            <div class="project-number">01</div>
             <h3>CV Bot con IA</h3>
             <p>
               Este mismo portfolio. Bot conversacional construido con FastAPI + Claude API + Whapi.
@@ -193,6 +194,7 @@
           </div>
 
           <div class="project-card">
+            <div class="project-number">02</div>
             <h3>App Klisze Pamięci</h3>
             <p>
               Aplicación multiplataforma (iOS/Android) para guiar visitantes de una exposición
@@ -206,6 +208,7 @@
           </div>
 
           <div class="project-card">
+            <div class="project-number">03</div>
             <h3>Portal Cautivo + Pasarela de Pago</h3>
             <p>
               Control de acceso a red WiFi en Linux con iptables e integración de pasarela de pago
@@ -219,6 +222,7 @@
           </div>
 
           <div class="project-card">
+            <div class="project-number">04</div>
             <h3>Automatización con IA</h3>
             <p>
               Uso avanzado de Claude y ChatGPT para automatizar tareas, generar y depurar código,
@@ -248,20 +252,16 @@
        CHATBOT
   ════════════════════════════════════════ -->
 
-  <!-- Botón flotante -->
   <button id="chat-toggle" aria-label="Abrir chat">
-    <!-- Icono chat -->
     <svg class="icon-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
     </svg>
-    <!-- Icono cerrar -->
     <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M18 6 6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
     </svg>
   </button>
   <div id="chat-label">Habla con mi CV</div>
 
-  <!-- Ventana de chat -->
   <div id="chat-window" class="hidden">
     <div class="chat-header">
       <div class="chat-header-info">
@@ -298,6 +298,14 @@
     </div>
   </div>
 
+  <script>
+    // Scroll-triggered fade-in
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+  </script>
   <script src="cv-data.js"></script>
   <script src="bot.js"></script>
 </body>
