@@ -1,6 +1,6 @@
 // bot.js — Lógica del chatbot para el portfolio
 
-const SESSION_ID = "web-" + Math.random().toString(36).slice(2, 10);
+const conversationHistory = [];
 
 const SUGGESTED_QUESTIONS = [
   "¿Por qué debería contratarte?",
@@ -18,7 +18,6 @@ function initChat() {
   const chatSend = document.getElementById("chat-send");
   const suggestionsEl = document.getElementById("chat-suggestions");
 
-  // Mostrar/ocultar ventana de chat
   chatToggle.addEventListener("click", () => {
     chatWindow.classList.toggle("hidden");
     chatToggle.classList.toggle("active");
@@ -32,7 +31,6 @@ function initChat() {
     chatToggle.classList.remove("active");
   });
 
-  // Preguntas sugeridas
   SUGGESTED_QUESTIONS.forEach((q) => {
     const btn = document.createElement("button");
     btn.className = "suggestion-btn";
@@ -44,7 +42,6 @@ function initChat() {
     suggestionsEl.appendChild(btn);
   });
 
-  // Enviar con botón o Enter
   chatSend.addEventListener("click", () => handleSend());
   chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -66,20 +63,31 @@ async function sendMessage(text) {
   appendMessage("user", text);
   const typing = appendTyping();
 
+  // Añadir mensaje al historial antes de enviarlo
+  conversationHistory.push({ role: "user", content: text });
+
   try {
-    const res = await fetch(`${CONFIG.BACKEND_URL}/chat`, {
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, session_id: SESSION_ID }),
+      body: JSON.stringify({
+        message: text,
+        history: conversationHistory.slice(0, -1), // historial previo sin el mensaje actual
+      }),
     });
 
     typing.remove();
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+
+    // Guardar respuesta del asistente en el historial
+    conversationHistory.push({ role: "assistant", content: data.response });
+
     appendMessage("bot", data.response);
   } catch (err) {
     typing.remove();
+    conversationHistory.pop(); // revertir si falló
     appendMessage(
       "bot",
       "Lo siento, ha ocurrido un error. Puedes contactar a Joan directamente en joanpedrocchipons@gmail.com"
@@ -95,7 +103,6 @@ function appendMessage(role, text) {
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  // Convertir saltos de línea a <br> y preservar formato básico
   bubble.innerHTML = text.replace(/\n/g, "<br>");
 
   div.appendChild(bubble);
