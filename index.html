@@ -1,312 +1,762 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joan Pedrocchi Pons — Portfolio</title>
-  <meta name="description" content="Técnico de Sistemas y Desarrollador Junior especializado en implementación de IA. Barcelona." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joan Pedrocchi Pons — IA & Automatización</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #e41a1f;
+  --red-dim: rgba(228,26,31,0.12);
+  --red-glow: rgba(228,26,31,0.3);
+  --bg: #080808;
+  --bg2: #0f0f0f;
+  --bg3: #141414;
+  --white: #f0ece6;
+  --gray: #555;
+  --gray-light: #888;
+  --border: rgba(255,255,255,0.07);
+  --border-red: rgba(228,26,31,0.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none}
+body.loading{overflow:hidden}
+
+#progress-bar{position:fixed;top:0;left:0;height:2px;background:var(--red);z-index:1000;width:0%;box-shadow:0 0 12px var(--red)}
+
+/* ── BOOT ── */
+#boot{position:fixed;inset:0;background:#000;z-index:9000;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:80px;font-family:'JetBrains Mono',monospace}
+.boot-line{font-size:13px;letter-spacing:0.05em;color:#555;opacity:0;transform:translateY(6px);transition:opacity 0.3s,transform 0.3s;margin-bottom:10px}
+.boot-line.show{opacity:1;transform:none}
+.boot-line.red{color:var(--red)}.boot-line.white{color:var(--white)}
+#boot.hidden{animation:boot-out 0.8s cubic-bezier(.77,0,.18,1) forwards}
+@keyframes boot-out{0%{transform:scaleY(1);opacity:1}60%{transform:scaleY(0.02)}100%{transform:scaleY(0);opacity:0;pointer-events:none}}
+
+/* ── CURSOR ── */
+#cursor{position:fixed;top:0;left:0;z-index:8999;pointer-events:none;mix-blend-mode:difference}
+#cursor-dot{width:6px;height:6px;background:var(--white);border-radius:50%;position:absolute;transform:translate(-50%,-50%)}
+#cursor-ring{width:32px;height:32px;border:1px solid rgba(255,255,255,0.5);border-radius:50%;position:absolute;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,opacity .3s;opacity:.5}
+body.hovering #cursor-ring{width:52px;height:52px;opacity:1;border-color:var(--red);border-width:1.5px}
+body.hovering #cursor-dot{background:var(--red)}
+
+#spotlight{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;mix-blend-mode:difference}
+.nav-logo{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--white);text-decoration:none;text-transform:uppercase;opacity:.6}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-link{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--white);text-decoration:none;text-transform:uppercase;opacity:.5;transition:opacity .2s}
+.nav-link:hover{opacity:1}
+.lang-switcher{display:flex;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em}
+.lang-btn{background:none;border:none;color:var(--white);cursor:none;opacity:.3;transition:opacity .2s;font-family:inherit;font-size:inherit;letter-spacing:inherit;padding:3px 5px}
+.lang-btn.active{opacity:1}.lang-btn:hover{opacity:.8}
+
+/* ── HERO ── */
+#hero{height:100vh;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:0 48px 64px;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 100%)}
+.hero-redline{position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,transparent,var(--red) 20%,var(--red) 80%,transparent);transform-origin:top;animation:redline-draw 1.2s cubic-bezier(.77,0,.18,1) .3s both;box-shadow:0 0 20px var(--red-glow)}
+@keyframes redline-draw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--red);margin-bottom:24px;position:relative;z-index:1;opacity:0;animation:fade-up .8s ease 1s both}
+.hero-name{font-size:clamp(72px,10.5vw,168px);font-weight:800;line-height:.88;letter-spacing:-.04em;position:relative;z-index:1}
+.hero-name-line{display:block;overflow:hidden}
+.hero-name-inner{display:block;transform:translateY(110%);animation:slide-up 1s cubic-bezier(.77,0,.18,1) both}
+.hero-name-line:nth-child(1) .hero-name-inner{animation-delay:.6s}
+.hero-name-line:nth-child(2) .hero-name-inner{animation-delay:.75s}
+.hero-name-line:nth-child(3) .hero-name-inner{animation-delay:.9s}
+@keyframes slide-up{to{transform:translateY(0)}}
+.hero-name em{font-style:normal;color:var(--red);text-shadow:0 0 40px rgba(228,26,31,.4)}
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;opacity:0}
+.glitch:hover::before{opacity:.8;color:var(--red);animation:glitch-1 .4s steps(1) infinite;clip-path:polygon(0 0,100% 0,100% 45%,0 45%);transform:translate(-3px,0)}
+.glitch:hover::after{opacity:.8;color:#00ffff;animation:glitch-2 .4s steps(1) infinite;clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);transform:translate(3px,0)}
+@keyframes glitch-1{0%,100%{transform:translate(-3px,0)}25%{transform:translate(3px,2px)}50%{transform:translate(-2px,-1px)}75%{transform:translate(2px,1px)}}
+@keyframes glitch-2{0%,100%{transform:translate(3px,0)}25%{transform:translate(-3px,-2px)}50%{transform:translate(2px,1px)}75%{transform:translate(-2px,-1px)}}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:48px;position:relative;z-index:1;opacity:0;animation:fade-up .8s ease 1.5s both}
+.hero-role{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--gray-light);max-width:480px;line-height:1.7}
+.hero-role strong{color:var(--red)}
+.hero-location{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:.1em;text-align:right;line-height:1.8}
+.scroll-indicator{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fade-up .8s ease 2s both;z-index:1}
+.scroll-indicator span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;color:var(--gray);text-transform:uppercase}
+.scroll-line{width:1px;height:48px;background:rgba(255,255,255,.1);position:relative;overflow:hidden}
+.scroll-line::after{content:'';position:absolute;top:-100%;left:0;right:0;height:100%;background:var(--red);animation:scroll-anim 1.5s ease-in-out 2.2s infinite}
+@keyframes scroll-anim{0%{top:-100%}100%{top:100%}}
+@keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MARQUEE ── */
+.marquee-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 0;overflow:hidden;background:var(--bg2);position:relative}
+.marquee-wrap::before,.marquee-wrap::after{content:'';position:absolute;top:0;bottom:0;width:120px;z-index:2}
+.marquee-wrap::before{left:0;background:linear-gradient(to right,var(--bg2),transparent)}
+.marquee-wrap::after{right:0;background:linear-gradient(to left,var(--bg2),transparent)}
+.marquee-track{display:flex;width:max-content;animation:marquee 28s linear infinite}
+.marquee-item{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);padding:0 28px;white-space:nowrap;display:flex;align-items:center;gap:28px}
+.marquee-item::after{content:'·';color:var(--red)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTIONS ── */
+section{padding:120px 48px;border-top:1px solid var(--border);position:relative}
+.section-header{display:flex;align-items:baseline;gap:24px;margin-bottom:80px}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);letter-spacing:.2em;opacity:.8}
+.section-title{font-size:clamp(40px,6vw,80px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.section-line{flex:1;height:1px;background:var(--border);margin-bottom:4px}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}.reveal-delay-4{transition-delay:.4s}
+
+/* ── ABOUT ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.about-text{font-size:clamp(15px,1.4vw,19px);line-height:1.85;color:var(--gray-light)}
+.about-text strong{color:var(--white);font-weight:600}
+.about-text .highlight{color:var(--red);font-weight:700}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.stat-card{background:var(--bg3);padding:36px 28px;border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .3s}
+.stat-card:hover{border-color:var(--border-red)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:var(--red);transition:height .7s cubic-bezier(.16,1,.3,1)}
+.stat-card.visible::before{height:100%}
+.stat-num{font-size:52px;font-weight:800;color:var(--white);line-height:1;margin-bottom:8px}
+.stat-num span{color:var(--red)}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--gray);text-transform:uppercase}
+
+/* ── AI SKILLS HERO CARD ── */
+.ai-hero-card{background:var(--bg3);border:1px solid var(--border-red);padding:64px;position:relative;overflow:hidden;margin-bottom:64px}
+.ai-hero-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,rgba(228,26,31,.1),transparent 60%)}
+.ai-hero-card-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.3em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.ai-hero-card-label::after{content:'';flex:1;height:1px;background:var(--border-red)}
+.ai-hero-card-title{font-size:clamp(28px,4vw,52px);font-weight:800;letter-spacing:-.03em;margin-bottom:32px;line-height:1.05}
+.ai-tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;position:relative;z-index:1}
+.ai-tool{background:rgba(0,0,0,.4);border:1px solid var(--border);padding:20px 20px;display:flex;flex-direction:column;gap:8px;transition:border-color .3s,background .3s}
+.ai-tool:hover{border-color:var(--border-red);background:rgba(228,26,31,.05)}
+.ai-tool-name{font-weight:700;font-size:15px;letter-spacing:-.01em}
+.ai-tool-desc{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:.05em;line-height:1.5}
+
+/* ── SKILLS ── */
+.skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:64px}
+.skill-group-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--red);margin-bottom:28px;display:flex;align-items:center;gap:16px}
+.skill-group-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.skill-item{margin-bottom:18px}
+.skill-row{display:flex;justify-content:space-between;font-size:14px;color:var(--white);margin-bottom:8px;font-weight:500}
+.skill-pct{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray)}
+.skill-bar{height:1px;background:rgba(255,255,255,.07);position:relative;overflow:visible}
+.skill-fill{position:absolute;top:0;left:0;height:1px;background:linear-gradient(to right,var(--red),#ff5555);width:0;transition:width 1.4s cubic-bezier(.16,1,.3,1);box-shadow:0 0 8px rgba(228,26,31,.5)}
+.skill-fill::after{content:'';position:absolute;right:-3px;top:-3px;width:7px;height:7px;background:var(--red);border-radius:50%;box-shadow:0 0 10px var(--red);opacity:0;transition:opacity .3s 1.4s}
+.skill-fill.animated{width:var(--w)}.skill-fill.animated::after{opacity:1}
+
+/* ── EXPERIENCE ── */
+.exp-list{display:flex;flex-direction:column}
+.exp-item{display:grid;grid-template-columns:200px 1fr;padding:52px 0;border-bottom:1px solid var(--border);position:relative;gap:48px;transition:background .3s}
+.exp-item:hover{background:rgba(255,255,255,.01)}
+.exp-item::after{content:'';position:absolute;left:0;bottom:-1px;height:1px;width:0;background:var(--red);transition:width 1s cubic-bezier(.16,1,.3,1)}
+.exp-item.visible::after{width:100%}
+.exp-meta{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.exp-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);letter-spacing:.1em}
+.exp-company{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-light);letter-spacing:.05em}
+.exp-location{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:.05em;line-height:1.5}
+.exp-role{font-size:clamp(20px,2.5vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:20px;line-height:1.1}
+.exp-desc{font-size:15px;line-height:1.85;color:var(--gray-light)}
+.exp-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border:1px solid var(--border);color:var(--gray-light);transition:border-color .2s,color .2s}
+.tag:hover{border-color:var(--border-red);color:var(--white)}
+.tag.red{border-color:var(--border-red);color:var(--red)}
+
+/* ── EDUCATION ── */
+.edu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.edu-card{background:var(--bg3);padding:52px 40px;border:1px solid var(--border);display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;transition:border-color .3s}
+.edu-card:hover{border-color:var(--border-red)}
+.edu-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at bottom left,var(--red-dim),transparent 70%);opacity:0;transition:opacity .4s}
+.edu-card:hover::before{opacity:1}
+.edu-num{font-family:'JetBrains Mono',monospace;font-size:72px;font-weight:300;color:rgba(255,255,255,.04);line-height:1;position:absolute;top:20px;right:28px}
+.edu-year{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.2em;text-transform:uppercase}
+.edu-degree{font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.2;position:relative;z-index:1}
+.edu-school{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray-light);letter-spacing:.04em;line-height:1.5;position:relative;z-index:1}
+
+/* ── LANGUAGES ── */
+.lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.lang-card{background:var(--bg3);border:1px solid var(--border);padding:40px 32px;display:flex;flex-direction:column;gap:8px;transition:border-color .3s}
+.lang-card:hover{border-color:var(--border-red)}
+.lang-name{font-size:32px;font-weight:800;letter-spacing:-.02em}
+.lang-level{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.2em;text-transform:uppercase}
+.lang-dots{display:flex;gap:5px;margin-top:14px}
+.lang-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.lang-dot.filled{background:var(--red);box-shadow:0 0 6px rgba(228,26,31,.5)}
+
+/* ── PROJECTS ── */
+.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+.proj-card{background:var(--bg3);border:1px solid var(--border);padding:52px 44px;display:flex;flex-direction:column;gap:20px;position:relative;overflow:hidden;cursor:none;transition:border-color .3s}
+.proj-card:hover{border-color:var(--border-red)}
+.proj-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at bottom right,rgba(228,26,31,.06),transparent 60%);opacity:0;transition:opacity .4s}
+.proj-card:hover::before{opacity:1}
+.proj-card-featured{grid-column:1 / -1}
+.proj-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:.2em}
+.proj-title{font-size:clamp(20px,2.2vw,28px);font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.proj-desc{font-size:14px;color:var(--gray-light);line-height:1.8;flex:1}
+.proj-arrow{font-size:28px;color:var(--red);transform:rotate(-45deg);transition:transform .35s cubic-bezier(.16,1,.3,1),text-shadow .3s;align-self:flex-end;line-height:1}
+.proj-card:hover .proj-arrow{transform:rotate(0deg);text-shadow:0 0 20px rgba(228,26,31,.6)}
+
+/* ── CONTACT ── */
+#contact{padding:140px 48px 100px;text-align:center;position:relative;overflow:hidden}
+.contact-bg-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(160px,22vw,320px);font-weight:800;color:rgba(255,255,255,.015);pointer-events:none;white-space:nowrap;letter-spacing:-.05em;user-select:none}
+.contact-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);letter-spacing:.3em;text-transform:uppercase;margin-bottom:32px}
+.contact-heading{font-size:clamp(56px,8vw,120px);font-weight:800;letter-spacing:-.04em;line-height:.9;margin-bottom:80px;position:relative;z-index:1}
+.contact-links{display:flex;justify-content:center;gap:64px;flex-wrap:wrap;position:relative;z-index:1}
+.contact-link{display:flex;flex-direction:column;gap:8px;text-decoration:none;align-items:center;cursor:none;transition:transform .3s ease}
+.contact-link-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:.3em;text-transform:uppercase}
+.contact-link-val{font-size:18px;font-weight:600;color:var(--white);position:relative;transition:color .2s}
+.contact-link-val::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .35s ease}
+.contact-link:hover .contact-link-val{color:var(--red)}
+.contact-link:hover .contact-link-val::after{transform:scaleX(1);transform-origin:left}
+
+footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:.1em}
+
+/* ── CHATBOT ── */
+#chat-btn{position:fixed;bottom:32px;right:32px;z-index:600;width:56px;height:56px;border-radius:50%;background:var(--red);border:none;cursor:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 var(--red-glow);animation:pulse-ring 2.5s ease-out infinite}
+#chat-btn svg{width:22px;height:22px;fill:white}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 var(--red-glow)}70%{box-shadow:0 0 0 16px rgba(228,26,31,0)}100%{box-shadow:0 0 0 0 rgba(228,26,31,0)}}
+#chat-btn:hover{transform:scale(1.08)}
+
+#chat-panel{position:fixed;bottom:104px;right:32px;z-index:600;width:380px;max-height:520px;background:var(--bg3);border:1px solid var(--border-red);display:flex;flex-direction:column;box-shadow:0 0 60px rgba(228,26,31,.12);transform:translateY(20px) scale(0.95);opacity:0;pointer-events:none;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .3s ease}
+#chat-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+.chat-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.chat-header-left{display:flex;align-items:center;gap:10px}
+.chat-dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red);animation:blink-dot 1.5s ease-in-out infinite}
+@keyframes blink-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-title{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.chat-subtitle{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:.05em}
+#chat-close{background:none;border:none;color:var(--gray);cursor:none;font-size:18px;transition:color .2s;line-height:1}
+#chat-close:hover{color:var(--white)}
+#chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.msg{max-width:85%;font-size:14px;line-height:1.6;padding:12px 16px;border-radius:2px}
+.msg.bot{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--white);align-self:flex-start}
+.msg.user{background:var(--red);color:white;align-self:flex-end}
+.msg.typing{color:var(--gray);font-family:'JetBrains Mono',monospace;font-size:12px}
+.msg.typing::after{content:'▋';animation:blink-cursor .7s step-end infinite}
+@keyframes blink-cursor{0%,100%{opacity:1}50%{opacity:0}}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 12px}
+.chat-suggestion{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;padding:6px 10px;border:1px solid var(--border);background:none;color:var(--gray-light);cursor:none;transition:border-color .2s,color .2s}
+.chat-suggestion:hover{border-color:var(--border-red);color:var(--white)}
+.chat-input-wrap{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center}
+#chat-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--white);outline:none;transition:border-color .2s}
+#chat-input::placeholder{color:var(--gray)}
+#chat-input:focus{border-color:var(--border-red)}
+#chat-send{background:var(--red);border:none;color:white;width:36px;height:36px;cursor:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+#chat-send:hover{opacity:.85}
+#chat-send svg{width:16px;height:16px;fill:white}
+
+/* Translations */
+[data-lang]{display:none}[data-lang].active{display:block}
+[data-lang-inline]{display:none}[data-lang-inline].active{display:inline}
+</style>
 </head>
-<body>
+<body class="loading">
 
-  <!-- ── HEADER ── -->
-  <header>
-    <div class="container">
-      <div class="header-inner">
-        <div class="avatar">JP</div>
-        <div class="header-text">
-          <h1>Joan Pedrocchi Pons</h1>
-          <p class="title">Técnico de Sistemas &amp; Desarrollador Junior · IA</p>
-          <div class="contact-links">
-            <a href="mailto:joanpedrocchipons@gmail.com">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              joanpedrocchipons@gmail.com
-            </a>
-            <a href="tel:+34644573457">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 13.93 19.79 19.79 0 0 1 1 5.18 2 2 0 0 1 2.96 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 10.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17z"/></svg>
-              +34 644 573 457
-            </a>
-            <a href="#">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              Barcelona, España
-            </a>
-          </div>
-          <div class="seeking-badge">
-            <span class="dot"></span>
-            Disponible · Implementación de IA
-          </div>
-        </div>
+<!-- BOOT -->
+<div id="boot"></div>
+
+<!-- PROGRESS -->
+<div id="progress-bar"></div>
+
+<!-- CURSOR -->
+<div id="cursor"><div id="cursor-dot"></div><div id="cursor-ring"></div></div>
+<div id="spotlight"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">JPP</a>
+  <div class="nav-links">
+    <a href="#skills" class="nav-link" data-nav-key data-es="IA" data-ca="IA" data-en="AI">IA</a>
+    <a href="#projects" class="nav-link" data-nav-key data-es="Proyectos" data-ca="Projectes" data-en="Projects">Proyectos</a>
+    <a href="#contact" class="nav-link" data-nav-key data-es="Contacto" data-ca="Contacte" data-en="Contact">Contacto</a>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang-switch="es">ES</button>
+      <button class="lang-btn" data-lang-switch="ca">CA</button>
+      <button class="lang-btn" data-lang-switch="en">EN</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-redline"></div>
+  <div class="hero-label">
+    <span data-lang="es" class="active">IA · Automatización · Sistemas · Barcelona</span>
+    <span data-lang-inline="ca">IA · Automatització · Sistemes · Barcelona</span>
+    <span data-lang-inline="en">AI · Automation · Systems · Barcelona</span>
+  </div>
+  <h1 class="hero-name">
+    <span class="hero-name-line"><span class="hero-name-inner glitch" data-text="JOAN">JOAN</span></span>
+    <span class="hero-name-line"><span class="hero-name-inner glitch" data-text="PEDROCCHI">PEDROCCHI</span></span>
+    <span class="hero-name-line"><span class="hero-name-inner"><em class="glitch" data-text="PONS">PONS</em></span></span>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-role">
+      <span data-lang="es" class="active"><strong>Especialista en IA & Automatización</strong><br>Técnico de Sistemas · Vue 3 · Python · Linux<br>Cualquier reto técnico. Una solución.</span>
+      <span data-lang-inline="ca"><strong>Especialista en IA & Automatització</strong><br>Tècnic de Sistemes · Vue 3 · Python · Linux<br>Qualsevol repte tècnic. Una solució.</span>
+      <span data-lang-inline="en"><strong>AI & Automation Specialist</strong><br>Systems Technician · Vue 3 · Python · Linux<br>Any technical challenge. One solution.</span>
+    </p>
+    <p class="hero-location">Barcelona, España<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3953565857495c5d4b565a5a51504956574a795e54585055175a5654">[email&#160;protected]</a><br>+34 644 573 457</p>
+  </div>
+  <div class="scroll-indicator"><span>scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap"><div class="marquee-track" id="marquee-track"></div></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Perfil</span><span data-lang-inline="ca">Perfil</span><span data-lang-inline="en">About</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-grid">
+    <p class="about-text reveal reveal-delay-1">
+      <span data-lang="es" class="active">Mi enfoque es claro: <span class="highlight">IA y automatización primero</span>. Uso inteligencia artificial no solo como herramienta, sino como metodología de trabajo — para escribir código más rápido, depurar con precisión, automatizar lo repetitivo y resolver problemas complejos de sistemas. <strong>Soy técnico de sistemas (ASIX)</strong> con base sólida en redes, servidores Linux/Windows y desarrollo frontend con Vue 3. Eso significa que puedo atacar cualquier capa del stack técnico. Pero lo que me diferencia es la capacidad de <strong>multiplicar la productividad aplicando IA</strong> donde otros no la usan.</span>
+      <span data-lang-inline="ca">El meu enfocament és clar: <span class="highlight">IA i automatització primer</span>. Uso intel·ligència artificial no només com a eina, sinó com a metodologia de treball. <strong>Sóc tècnic de sistemes (ASIX)</strong> amb base sòlida en xarxes, servidors i desenvolupament frontend amb Vue 3. El que em diferencia és la capacitat de <strong>multiplicar la productivitat aplicant IA</strong> on altres no la usen.</span>
+      <span data-lang-inline="en">My approach is clear: <span class="highlight">AI and automation first</span>. I use artificial intelligence not just as a tool, but as a working methodology — to write code faster, debug precisely, automate repetitive tasks, and solve complex system problems. <strong>I'm a systems technician (ASIX)</strong> with a solid foundation in networks, Linux/Windows servers, and Vue 3 frontend. What sets me apart is the ability to <strong>multiply productivity by applying AI</strong> where others don't.</span>
+    </p>
+    <div class="about-stats">
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-num"><span class="count" data-target="4">0</span><span>+</span></div>
+        <div class="stat-label"><span data-lang="es" class="active">Años exp.</span><span data-lang-inline="ca">Anys exp.</span><span data-lang-inline="en">Years exp.</span></div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-num"><span class="count" data-target="3">0</span><span>×</span></div>
+        <div class="stat-label"><span data-lang="es" class="active">Proyectos prod.</span><span data-lang-inline="ca">Projectes prod.</span><span data-lang-inline="en">Live projects</span></div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-num"><span class="count" data-target="100">0</span><span>%</span></div>
+        <div class="stat-label"><span data-lang="es" class="active">Proyectos con IA</span><span data-lang-inline="ca">Projectes amb IA</span><span data-lang-inline="en">Projects with AI</span></div>
+      </div>
+      <div class="stat-card reveal reveal-delay-4">
+        <div class="stat-num">∞</div>
+        <div class="stat-label"><span data-lang="es" class="active">Capacidad de escalar</span><span data-lang-inline="ca">Capacitat d'escalar</span><span data-lang-inline="en">Ability to scale</span></div>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main>
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Habilidades</span><span data-lang-inline="ca">Habilitats</span><span data-lang-inline="en">Skills</span></h2>
+    <div class="section-line"></div>
+  </div>
 
-    <!-- ── SOBRE MÍ ── -->
-    <section id="about">
-      <div class="container" data-animate>
-        <h2>Sobre mí</h2>
-        <p class="about-text">
-          Técnico de Sistemas (ASIX) con experiencia práctica en desarrollo de aplicaciones móviles
-          multiplataforma, administración de sistemas y automatización con inteligencia artificial.
-          Dominio avanzado de LLMs (Claude, ChatGPT) aplicado a proyectos técnicos reales.
-          He colaborado en el desarrollo de una app en producción para un cliente internacional,
-          combinando frontend moderno con sólidos conocimientos en redes y servidores Linux/Windows.
-        </p>
-      </div>
-    </section>
-
-    <!-- ── EXPERIENCIA ── -->
-    <section id="experience">
-      <div class="container" data-animate>
-        <h2>Experiencia</h2>
-        <div class="experience-list">
-
-          <div class="exp-item">
-            <div class="exp-header">
-              <div>
-                <div class="exp-title">Mobile App Developer</div>
-                <div class="exp-company">Klisze Pamięci — Oświęcim, Polonia (Remoto)</div>
-              </div>
-              <div class="exp-date">May 2025 – 2025</div>
-            </div>
-            <p class="exp-desc">
-              Desarrollo completo de una aplicación móvil multiplataforma (iOS/Android) desde cero
-              con Vue 3, Vite y Capacitor para guiar visitantes en una exposición cultural en Polonia.
-              Trabajo 100% en inglés con cliente internacional. Gestión de versiones con Git/GitHub.
-            </p>
-          </div>
-
-          <div class="exp-item">
-            <div class="exp-header">
-              <div>
-                <div class="exp-title">Técnico en Bases de Datos y Digitalización GIS</div>
-                <div class="exp-company">Colaboración Familiar — Barcelona</div>
-              </div>
-              <div class="exp-date">2023 – Actualidad</div>
-            </div>
-            <p class="exp-desc">
-              Diseño de bases de datos relacionales con Microsoft Access, digitalización y
-              georreferenciación GIS, automatización de procesos con Python y Bash.
-            </p>
-          </div>
-
-          <div class="exp-item">
-            <div class="exp-header">
-              <div>
-                <div class="exp-title">Computer Technician</div>
-                <div class="exp-company">Taller Informático — Amarante, Portugal</div>
-              </div>
-              <div class="exp-date">Jun – Jul 2022</div>
-            </div>
-            <p class="exp-desc">
-              Diagnóstico, reparación de hardware y configuración de sistemas operativos en entorno profesional.
-            </p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ── HABILIDADES ── -->
-    <section id="skills">
-      <div class="container" data-animate>
-        <h2>Habilidades</h2>
-        <div class="skills-grid">
-          <div class="skill-category featured">
-            <h3>IA &amp; Automatización</h3>
-            <div class="skill-tags">
-              <span class="tag">Claude API</span>
-              <span class="tag">ChatGPT</span>
-              <span class="tag">Integración APIs</span>
-              <span class="tag">LLMs</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <h3>Frontend / Móvil</h3>
-            <div class="skill-tags">
-              <span class="tag">Vue 3</span>
-              <span class="tag">Vite</span>
-              <span class="tag">Capacitor</span>
-              <span class="tag">HTML5</span>
-              <span class="tag">CSS3</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <h3>Sistemas</h3>
-            <div class="skill-tags">
-              <span class="tag">Linux</span>
-              <span class="tag">Windows Server</span>
-              <span class="tag">Virtualización</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <h3>Scripting</h3>
-            <div class="skill-tags">
-              <span class="tag">Python</span>
-              <span class="tag">Bash</span>
-              <span class="tag">PowerShell</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <h3>Redes</h3>
-            <div class="skill-tags">
-              <span class="tag">LAN/WAN</span>
-              <span class="tag">VLANs</span>
-              <span class="tag">DNS/DHCP</span>
-              <span class="tag">VPN</span>
-            </div>
-          </div>
-          <div class="skill-category">
-            <h3>Bases de Datos</h3>
-            <div class="skill-tags">
-              <span class="tag">MySQL</span>
-              <span class="tag">PostgreSQL</span>
-              <span class="tag">SQLite</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── PROYECTOS ── -->
-    <section id="projects">
-      <div class="container" data-animate>
-        <h2>Proyectos</h2>
-        <div class="projects-grid">
-
-          <div class="project-card">
-            <div class="project-number">01</div>
-            <h3>CV Bot con IA</h3>
-            <p>
-              Este mismo portfolio. Bot conversacional construido con FastAPI + Claude API + Whapi.
-              Demostración end-to-end de implementación de IA: diseño, backend y deploy en Railway.
-            </p>
-            <div class="project-tags">
-              <span class="project-tag">FastAPI</span>
-              <span class="project-tag">Claude API</span>
-              <span class="project-tag">Python</span>
-              <span class="project-tag">Railway</span>
-            </div>
-          </div>
-
-          <div class="project-card">
-            <div class="project-number">02</div>
-            <h3>App Klisze Pamięci</h3>
-            <p>
-              Aplicación multiplataforma (iOS/Android) para guiar visitantes de una exposición
-              cultural en Polonia. Desarrollo end-to-end con cliente internacional.
-            </p>
-            <div class="project-tags">
-              <span class="project-tag">Vue 3</span>
-              <span class="project-tag">Capacitor</span>
-              <span class="project-tag">Vite</span>
-            </div>
-          </div>
-
-          <div class="project-card">
-            <div class="project-number">03</div>
-            <h3>Portal Cautivo + Pasarela de Pago</h3>
-            <p>
-              Control de acceso a red WiFi en Linux con iptables e integración de pasarela de pago
-              para autenticar usuarios antes de otorgar acceso a internet.
-            </p>
-            <div class="project-tags">
-              <span class="project-tag">Linux</span>
-              <span class="project-tag">iptables</span>
-              <span class="project-tag">Networking</span>
-            </div>
-          </div>
-
-          <div class="project-card">
-            <div class="project-number">04</div>
-            <h3>Automatización con IA</h3>
-            <p>
-              Uso avanzado de Claude y ChatGPT para automatizar tareas, generar y depurar código,
-              y optimizar flujos técnicos en proyectos reales.
-            </p>
-            <div class="project-tags">
-              <span class="project-tag">Claude</span>
-              <span class="project-tag">ChatGPT</span>
-              <span class="project-tag">Python</span>
-              <span class="project-tag">Bash</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="container">
-      <p>Joan Pedrocchi Pons · Barcelona · joanpedrocchipons@gmail.com</p>
+  <!-- BIG AI CARD -->
+  <div class="ai-hero-card reveal">
+    <div class="ai-hero-card-label">
+      <span data-lang="es" class="active">Especialización principal</span>
+      <span data-lang-inline="ca">Especialització principal</span>
+      <span data-lang-inline="en">Core specialization</span>
     </div>
-  </footer>
-
-  <!-- ════════════════════════════════════════
-       CHATBOT
-  ════════════════════════════════════════ -->
-
-  <button id="chat-toggle" aria-label="Abrir chat">
-    <svg class="icon-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
-    </svg>
-    <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M18 6 6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    </svg>
-  </button>
-  <div id="chat-label">Habla con mi CV</div>
-
-  <div id="chat-window" class="hidden">
-    <div class="chat-header">
-      <div class="chat-header-info">
-        <div class="chat-avatar">JP</div>
-        <div>
-          <div class="chat-header-title">Asistente de Joan</div>
-          <div class="chat-header-sub">Pregúntame lo que quieras</div>
-        </div>
-      </div>
-      <button id="chat-close" aria-label="Cerrar chat">✕</button>
+    <div class="ai-hero-card-title">
+      <span data-lang="es" class="active">IA Aplicada &amp; Automatización</span>
+      <span data-lang-inline="ca">IA Aplicada &amp; Automatització</span>
+      <span data-lang-inline="en">Applied AI &amp; Automation</span>
     </div>
-
-    <div id="chat-messages">
-      <div class="chat-message bot">
-        <div class="bubble">
-          ¡Hola! Soy el asistente de Joan Pedrocchi. Puedo contarte sobre su experiencia, proyectos, habilidades técnicas o por qué sería un gran candidato para tu equipo. ¿En qué te puedo ayudar?
-        </div>
-      </div>
-    </div>
-
-    <div id="chat-suggestions"></div>
-
-    <div class="chat-input-area">
-      <textarea
-        id="chat-input"
-        placeholder="Escribe tu pregunta..."
-        rows="1"
-      ></textarea>
-      <button id="chat-send" aria-label="Enviar">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z"/>
-        </svg>
-      </button>
+    <div class="ai-tools-grid">
+      <div class="ai-tool"><div class="ai-tool-name">Prompt Engineering</div><div class="ai-tool-desc">Diseño de prompts avanzados para generación de código, depuración, análisis y automatización de flujos</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Claude / ChatGPT</div><div class="ai-tool-desc">Uso profesional diario. Integración vía API en proyectos propios y scripts de automatización</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Automatización de Flujos</div><div class="ai-tool-desc">Pipelines Python + IA para tareas repetitivas, procesamiento de datos y scripting inteligente</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Generación de Código</div><div class="ai-tool-desc">Desarrollo acelerado con IA: de idea a código funcional en minutos, con revisión técnica propia</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">APIs de IA</div><div class="ai-tool-desc">Integración de Anthropic, OpenAI, Gemini en aplicaciones reales y prototipos funcionales</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Depuración con IA</div><div class="ai-tool-desc">Análisis de errores, trazas de stack y propuestas de fix asistidas por modelos de lenguaje</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Copilot / Cursor</div><div class="ai-tool-desc">Entornos de desarrollo potenciados con IA para productividad máxima en el día a día</div></div>
+      <div class="ai-tool"><div class="ai-tool-name">Scripting Inteligente</div><div class="ai-tool-desc">Scripts Bash y Python generados, optimizados y documentados con asistencia de IA</div></div>
     </div>
   </div>
 
-  <script>
-    // Scroll-triggered fade-in
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-      { threshold: 0.12 }
-    );
-    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
-  </script>
-  <script src="cv-data.js"></script>
-  <script src="bot.js"></script>
+  <!-- TECHNICAL SKILLS GRID -->
+  <div class="skills-grid">
+    <div class="skill-group reveal">
+      <div class="skill-group-title">Frontend / Móvil</div>
+      <div class="skill-item"><div class="skill-row"><span>Vue 3 + Vite</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:85%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>Capacitor (iOS/Android)</span><span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:80%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>HTML5 / CSS3</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:90%"></div></div></div>
+    </div>
+    <div class="skill-group reveal reveal-delay-1">
+      <div class="skill-group-title"><span data-lang="es" class="active">Sistemas & Redes</span><span data-lang-inline="ca">Sistemes & Xarxes</span><span data-lang-inline="en">Systems & Networking</span></div>
+      <div class="skill-item"><div class="skill-row"><span>Linux (Ubuntu/Debian)</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:85%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>VLANs · DHCP · DNS · VPN</span><span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:80%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>Windows Server</span><span class="skill-pct">75%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:75%"></div></div></div>
+    </div>
+    <div class="skill-group reveal reveal-delay-2">
+      <div class="skill-group-title">Scripting & Data</div>
+      <div class="skill-item"><div class="skill-row"><span>Python</span><span class="skill-pct">82%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:82%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>Bash / PowerShell</span><span class="skill-pct">76%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:76%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>MySQL / PostgreSQL / GIS</span><span class="skill-pct">75%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:75%"></div></div></div>
+    </div>
+    <div class="skill-group reveal reveal-delay-3">
+      <div class="skill-group-title">DevOps & Tools</div>
+      <div class="skill-item"><div class="skill-row"><span>Git / GitHub</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:85%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>VS Code + AI Plugins</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:90%"></div></div></div>
+      <div class="skill-item"><div class="skill-row"><span>iptables / networking</span><span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill" style="--w:78%"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Experiencia</span><span data-lang-inline="ca">Experiència</span><span data-lang-inline="en">Experience</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="exp-list">
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-date">2025</span>
+        <span class="exp-company">Klisze Pamięci</span>
+        <span class="exp-location">Oświęcim, Polonia · Remoto</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Mobile App Developer</div>
+        <div class="exp-desc"><span data-lang="es" class="active">Desarrollo completo de una app móvil multiplataforma con IA integrada en el flujo de trabajo — generación de componentes, depuración y optimización de código asistidos por modelos de lenguaje. Entrega end-to-end para cliente internacional en inglés.</span><span data-lang-inline="ca">Desenvolupament complet d'una app mòbil multiplataforma amb IA integrada al flux de treball. Entrega end-to-end per a client internacional en anglès.</span><span data-lang-inline="en">Full development of a cross-platform mobile app with AI integrated throughout the workflow — component generation, debugging and code optimization assisted by language models. End-to-end delivery for an international client in English.</span></div>
+        <div class="exp-tags"><span class="tag red">Vue 3</span><span class="tag red">Capacitor</span><span class="tag red">IA en flujo</span><span class="tag">Git</span><span class="tag">iOS/Android</span><span class="tag">English</span></div>
+      </div>
+    </div>
+    <div class="exp-item reveal reveal-delay-1">
+      <div class="exp-meta">
+        <span class="exp-date">2023–Hoy</span>
+        <span class="exp-company">Colaboración Familiar</span>
+        <span class="exp-location">Barcelona, España</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role"><span data-lang="es" class="active">Automatización de Datos & GIS</span><span data-lang-inline="ca">Automatització de Dades & GIS</span><span data-lang-inline="en">Data Automation & GIS</span></div>
+        <div class="exp-desc"><span data-lang="es" class="active">Automatización de pipelines de datos con Python y Bash, asistida por IA para generación y optimización de scripts. Diseño de bases de datos y georreferenciación GIS. Primer contacto real con automatización de flujos de trabajo a medida.</span><span data-lang-inline="ca">Automatització de pipelines de dades amb Python i Bash, assistida per IA. Disseny de bases de dades i georreferenciació GIS.</span><span data-lang-inline="en">Data pipeline automation with Python and Bash, AI-assisted for script generation and optimization. Database design and GIS georeferencing. First real contact with custom workflow automation.</span></div>
+        <div class="exp-tags"><span class="tag red">Python</span><span class="tag red">Bash</span><span class="tag red">Automatización</span><span class="tag">GIS</span><span class="tag">MySQL</span></div>
+      </div>
+    </div>
+    <div class="exp-item reveal reveal-delay-2">
+      <div class="exp-meta">
+        <span class="exp-date">Jun–Jul 2022</span>
+        <span class="exp-company">Taller Informático Amarante</span>
+        <span class="exp-location">Portugal</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role"><span data-lang="es" class="active">Computer Technician</span><span data-lang-inline="ca">Tècnic Informàtic</span><span data-lang-inline="en">Computer Technician</span></div>
+        <div class="exp-desc"><span data-lang="es" class="active">Diagnóstico, reparación y configuración de equipos. Instalación de Windows y software de productividad. Base práctica en hardware y sistemas de escritorio.</span><span data-lang-inline="ca">Diagnòstic, reparació i configuració d'equips. Instal·lació de Windows i software de productivitat.</span><span data-lang-inline="en">Hardware diagnosis, repair, and configuration. Windows OS and productivity software installation. Hands-on foundation in hardware and desktop systems.</span></div>
+        <div class="exp-tags"><span class="tag">Hardware</span><span class="tag">Windows</span><span class="tag">Soporte técnico</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Educación</span><span data-lang-inline="ca">Educació</span><span data-lang-inline="en">Education</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="edu-grid">
+    <div class="edu-card reveal">
+      <span class="edu-num">01</span>
+      <span class="edu-year">2026 – <span data-lang="es" class="active">En curso</span><span data-lang-inline="ca">En curs</span><span data-lang-inline="en">Ongoing</span></span>
+      <div class="edu-degree"><span data-lang="es" class="active">Grado en Ingeniería Informática</span><span data-lang-inline="ca">Grau en Enginyeria Informàtica</span><span data-lang-inline="en">Computer Engineering Degree</span></div>
+      <div class="edu-school">Universitat Oberta de Catalunya (UOC)</div>
+    </div>
+    <div class="edu-card reveal reveal-delay-1">
+      <span class="edu-num">02</span><span class="edu-year">2023 – 2025</span>
+      <div class="edu-degree">CFGS ASIX</div>
+      <div class="edu-school">INS Joaquim Mir</div>
+    </div>
+    <div class="edu-card reveal reveal-delay-2">
+      <span class="edu-num">03</span><span class="edu-year">2021 – 2023</span>
+      <div class="edu-degree">CFGM SMX</div>
+      <div class="edu-school">INS Joaquim Mir</div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section id="languages" style="padding: 80px 48px;">
+  <div class="section-header reveal">
+    <span class="section-num">05</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Idiomas</span><span data-lang-inline="ca">Idiomes</span><span data-lang-inline="en">Languages</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="lang-grid">
+    <div class="lang-card reveal"><div class="lang-name">ESP</div><div class="lang-level">Nativo</div><div class="lang-dots"><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div></div></div>
+    <div class="lang-card reveal reveal-delay-1"><div class="lang-name">CAT</div><div class="lang-level">Natiu</div><div class="lang-dots"><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div></div></div>
+    <div class="lang-card reveal reveal-delay-2"><div class="lang-name">ENG</div><div class="lang-level">B2 · Professional</div><div class="lang-dots"><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot filled"></div><div class="lang-dot"></div></div></div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="section-num">06</span>
+    <h2 class="section-title"><span data-lang="es" class="active">Proyectos</span><span data-lang-inline="ca">Projectes</span><span data-lang-inline="en">Projects</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="proj-grid">
+    <div class="proj-card proj-card-featured reveal">
+      <span class="proj-num">01 / FEATURED — LIVE</span>
+      <div class="proj-title"><span data-lang="es" class="active">Chatbot de Portfolio con IA</span><span data-lang-inline="ca">Chatbot de Portfolio amb IA</span><span data-lang-inline="en">AI Portfolio Chatbot</span></div>
+      <div class="proj-desc"><span data-lang="es" class="active">Asistente conversacional integrado en esta misma página, construido sobre la API de Claude. Responde preguntas sobre mi perfil, experiencia y habilidades en tiempo real. Ejemplo directo de cómo integro IA en proyectos propios.</span><span data-lang-inline="ca">Assistent conversacional integrat en aquesta pàgina, construït sobre l'API de Claude. Respon preguntes sobre el meu perfil, experiència i habilitats en temps real.</span><span data-lang-inline="en">Conversational assistant integrated into this very page, built on the Claude API. Answers questions about my profile, experience and skills in real time. A direct example of how I integrate AI into my own projects.</span></div>
+      <div class="exp-tags"><span class="tag red">Claude API</span><span class="tag red">Prompt Engineering</span><span class="tag">JavaScript</span><span class="tag">Live</span></div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-card reveal">
+      <span class="proj-num">02</span>
+      <div class="proj-title"><span data-lang="es" class="active">Pipeline de Automatización Python + IA</span><span data-lang-inline="ca">Pipeline d'Automatització Python + IA</span><span data-lang-inline="en">Python + AI Automation Pipeline</span></div>
+      <div class="proj-desc"><span data-lang="es" class="active">Sistema de automatización de tareas técnicas repetitivas usando Python + Claude API: generación de informes, procesamiento de logs, transformación de datos y creación de scripts bajo demanda.</span><span data-lang-inline="ca">Sistema d'automatització de tasques tècniques repetitives usant Python + Claude API: generació d'informes, processament de logs i creació de scripts sota demanda.</span><span data-lang-inline="en">Technical task automation system using Python + Claude API: report generation, log processing, data transformation, and on-demand script creation.</span></div>
+      <div class="exp-tags"><span class="tag red">Python</span><span class="tag red">Claude API</span><span class="tag">Bash</span><span class="tag">Automatización</span></div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-card reveal reveal-delay-1">
+      <span class="proj-num">03</span>
+      <div class="proj-title">App móvil Klisze Pamięci</div>
+      <div class="proj-desc"><span data-lang="es" class="active">App multiplataforma (iOS/Android) para exposición cultural en Polonia. Desarrollo end-to-end con Vue 3 + Capacitor, con flujo de trabajo potenciado por IA para acelerar el desarrollo y reducir bugs.</span><span data-lang-inline="ca">App multiplataforma per a exposició cultural a Polònia. Desenvolupament end-to-end amb Vue 3 + Capacitor, amb flux de treball potenciat per IA.</span><span data-lang-inline="en">Cross-platform app (iOS/Android) for cultural exhibition in Poland. End-to-end development with Vue 3 + Capacitor, with AI-powered workflow to accelerate development and reduce bugs.</span></div>
+      <div class="exp-tags"><span class="tag red">Vue 3</span><span class="tag red">Capacitor</span><span class="tag">iOS/Android</span><span class="tag">Git</span></div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-card reveal reveal-delay-2">
+      <span class="proj-num">04</span>
+      <div class="proj-title"><span data-lang="es" class="active">Portal Cautivo con iptables + IA</span><span data-lang-inline="ca">Portal Captiu amb iptables + IA</span><span data-lang-inline="en">Captive Portal with iptables + AI</span></div>
+      <div class="proj-desc"><span data-lang="es" class="active">Portal cautivo Linux con control de acceso WiFi e integración de pasarela de pago. Proyecto desarrollado íntegramente con asistencia de IA para el diseño de reglas iptables y lógica de autenticación.</span><span data-lang-inline="ca">Portal captiu Linux amb control d'accés WiFi i integració de passarel·la de pagament. Projecte desenvolupat íntegrament amb assistència d'IA.</span><span data-lang-inline="en">Linux captive portal with WiFi access control and payment gateway integration. Project developed entirely with AI assistance for iptables rules design and authentication logic.</span></div>
+      <div class="exp-tags"><span class="tag red">Linux</span><span class="tag red">iptables</span><span class="tag red">IA asistida</span><span class="tag">WiFi</span></div>
+      <div class="proj-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-bg-text">JOAN</div>
+  <div class="contact-label reveal"><span data-lang="es" class="active">¿Trabajamos juntos?</span><span data-lang-inline="ca">Treballem junts?</span><span data-lang-inline="en">Let's work together</span></div>
+  <div class="contact-heading reveal reveal-delay-1"><span data-lang="es" class="active">Hablemos.</span><span data-lang-inline="ca">Parlem.</span><span data-lang-inline="en">Let's talk.</span></div>
+  <div class="contact-links reveal reveal-delay-2">
+    <a href="/cdn-cgi/l/email-protection#a7cdc8c6c9d7c2c3d5c8c4c4cfced7c8c9d4e7c0cac6cecb89c4c8ca" class="contact-link">
+      <span class="contact-link-label">Email</span>
+      <span class="contact-link-val"><span class="__cf_email__" data-cfemail="6903060807190c0d1b060a0a01001906071a290e04080005470a0604">[email&#160;protected]</span></span>
+    </a>
+    <a href="tel:+34644573457" class="contact-link">
+      <span class="contact-link-label"><span data-lang="es" class="active">Teléfono</span><span data-lang-inline="ca">Telèfon</span><span data-lang-inline="en">Phone</span></span>
+      <span class="contact-link-val">+34 644 573 457</span>
+    </a>
+    <a href="#" class="contact-link">
+      <span class="contact-link-label">Location</span>
+      <span class="contact-link-val">Barcelona, España</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-copy">© 2026 Joan Pedrocchi Pons</span>
+  <span class="footer-copy" style="color:var(--red)">IA · Automatización · Sistemas</span>
+</footer>
+
+<!-- CHATBOT -->
+<button id="chat-btn" title="Pregúntame sobre Joan">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+</button>
+
+<div id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-dot"></div>
+      <div>
+        <div class="chat-title">Joan AI</div>
+        <div class="chat-subtitle">Pregúntame sobre el perfil de Joan</div>
+      </div>
+    </div>
+    <button id="chat-close">×</button>
+  </div>
+  <div id="chat-messages">
+    <div class="msg bot" id="welcome-msg"></div>
+  </div>
+  <div class="chat-suggestions" id="chat-suggestions">
+    <button class="chat-suggestion">¿Qué sabe de IA?</button>
+    <button class="chat-suggestion">¿Qué proyectos tiene?</button>
+    <button class="chat-suggestion">¿Está disponible?</button>
+    <button class="chat-suggestion">¿Qué lenguajes domina?</button>
+  </div>
+  <div class="chat-input-wrap">
+    <input type="text" id="chat-input" placeholder="Escribe una pregunta..." autocomplete="off">
+    <button id="chat-send">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── BOOT ──
+const bootData=[
+  {t:'> INITIALIZING JPP_PORTFOLIO v3.0 ...',delay:0,cls:'red'},
+  {t:'  [OK] AI modules loaded',delay:280,cls:''},
+  {t:'  [OK] Automation engine ready',delay:500,cls:''},
+  {t:'  [OK] Systems stack verified',delay:720,cls:''},
+  {t:'> CANDIDATE: Joan Pedrocchi Pons',delay:1000,cls:'red'},
+  {t:'  SPECIALTY  IA & Automatización',delay:1150,cls:'white'},
+  {t:'  STACK      Vue3 · Python · Linux · Claude',delay:1300,cls:'white'},
+  {t:'  STATUS     Open to opportunities',delay:1500,cls:'white'},
+  {t:'> LAUNCH SEQUENCE COMPLETE',delay:1750,cls:'red'},
+];
+const bootEl=document.getElementById('boot');
+bootData.forEach(({t,delay,cls})=>{
+  setTimeout(()=>{
+    const d=document.createElement('div');
+    d.className='boot-line'+(cls?' '+cls:'');
+    d.textContent=t;
+    bootEl.appendChild(d);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('show')));
+  },delay);
+});
+setTimeout(()=>{
+  bootEl.classList.add('hidden');
+  document.body.classList.remove('loading');
+  setTimeout(()=>bootEl.style.display='none',900);
+},2500);
+
+// ── CURSOR ──
+const dot=document.getElementById('cursor-dot'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  dot.style.left=mx+'px';dot.style.top=my+'px';
+  document.getElementById('spotlight').style.background=`radial-gradient(500px circle at ${mx}px ${my}px, rgba(228,26,31,0.04), transparent 70%)`;
+});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+document.querySelectorAll('a,button,.proj-card,.edu-card,.stat-card,.lang-card,.exp-item,.ai-tool').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+});
+
+// ── MARQUEE ──
+const skills=['Claude API','ChatGPT','Prompt Engineering','Python','Vue 3','Capacitor','Bash','Linux','Git','MySQL','VLANs','VPN','iptables','GIS','CSS3','PowerShell','Anthropic','Automatización','n8n','Windows Server'];
+const track=document.getElementById('marquee-track');
+const all=[...skills,...skills].map(s=>`<span class="marquee-item">${s}</span>`).join('');
+track.innerHTML=all+all;
+
+// ── PROGRESS ──
+const bar=document.getElementById('progress-bar');
+window.addEventListener('scroll',()=>{bar.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%'});
+
+// ── REVEAL ──
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      e.target.querySelectorAll('.count').forEach(el=>{
+        const t=+el.dataset.target;let n=0;
+        const iv=setInterval(()=>{n=Math.min(n+Math.ceil(t/25),t);el.textContent=n;if(n>=t)clearInterval(iv);},50);
+      });
+      e.target.querySelectorAll('.skill-fill').forEach(b=>b.classList.add('animated'));
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.reveal,.stat-card,.exp-item,.skill-group,.ai-hero-card').forEach(el=>obs.observe(el));
+
+// ── LANG ──
+function setLang(lang){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.langSwitch===lang));
+  document.querySelectorAll('[data-lang]').forEach(el=>{
+    if(el.classList.contains('lang-btn'))return;
+    const show=el.dataset.lang===lang;
+    el.classList.toggle('active',show);el.style.display=show?'block':'none';
+  });
+  document.querySelectorAll('[data-lang-inline]').forEach(el=>{
+    const show=el.dataset.langInline===lang;
+    el.classList.toggle('active',show);el.style.display=show?'inline':'none';
+  });
+  document.querySelectorAll('[data-nav-key]').forEach(el=>el.textContent=el.dataset[lang]||el.textContent);
+}
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.langSwitch)));
+setLang('es');
+
+// ── PARALLAX ──
+window.addEventListener('scroll',()=>{
+  const g=document.querySelector('.hero-grid');
+  if(g)g.style.transform=`translateY(${window.scrollY*.25}px)`;
+});
+
+// ── MAGNETIC ──
+document.querySelectorAll('.contact-link').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    el.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.2}px,${(e.clientY-r.top-r.height/2)*.2}px)`;
+  });
+  el.addEventListener('mouseleave',()=>el.style.transform='');
+});
+
+// ── CHATBOT ──
+
+
+const chatBtn=document.getElementById('chat-btn');
+const chatPanel=document.getElementById('chat-panel');
+const chatClose=document.getElementById('chat-close');
+const chatInput=document.getElementById('chat-input');
+const chatSend=document.getElementById('chat-send');
+const chatMessages=document.getElementById('chat-messages');
+const chatSuggestions=document.getElementById('chat-suggestions');
+
+const welcomes={es:'¡Hola! Soy el asistente de Joan. Pregúntame lo que quieras sobre su perfil, habilidades o experiencia.',ca:'Hola! Sóc l\'assistent de Joan. Pregunta el que vulguis sobre el seu perfil.',en:'Hi! I\'m Joan\'s AI assistant. Ask me anything about his profile, skills or experience.'};
+let currentLangChat='es';
+document.getElementById('welcome-msg').textContent=welcomes.es;
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>{
+  currentLangChat=b.dataset.langSwitch;
+  document.getElementById('welcome-msg').textContent=welcomes[currentLangChat]||welcomes.es;
+}));
+
+chatBtn.addEventListener('click',()=>chatPanel.classList.toggle('open'));
+chatClose.addEventListener('click',()=>chatPanel.classList.remove('open'));
+
+// ── CAMBIA ESTA URL POR LA DE TU BACKEND EN VERCEL/RAILWAY ──
+const BACKEND_URL = 'https://cvbotbackend.vercel.app';
+
+let chatHistory = [];
+
+async function sendMessage(text){
+  if(!text.trim())return;
+  chatSuggestions.style.display='none';
+  const userMsg=document.createElement('div');
+  userMsg.className='msg user';userMsg.textContent=text;
+  chatMessages.appendChild(userMsg);
+  chatInput.value='';
+  const typing=document.createElement('div');
+  typing.className='msg typing bot';typing.textContent='Pensando';
+  chatMessages.appendChild(typing);
+  chatMessages.scrollTop=chatMessages.scrollHeight;
+  try{
+    const res = await fetch(`${BACKEND_URL}/api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ message: text, history: chatHistory })
+    });
+    const data = await res.json();
+    const reply = data.response;
+    chatHistory.push({role:'user',content:text});
+    chatHistory.push({role:'assistant',content:reply});
+    // keep history short
+    if(chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    typing.remove();
+    const botMsg=document.createElement('div');
+    botMsg.className='msg bot';botMsg.textContent=reply;
+    chatMessages.appendChild(botMsg);
+  }catch(e){
+    typing.remove();
+    const err=document.createElement('div');
+    err.className='msg bot';err.textContent='Hubo un error conectando con el servidor. Contacta a Joan directamente.';
+    chatMessages.appendChild(err);
+  }
+  chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+
+chatSend.addEventListener('click',()=>sendMessage(chatInput.value));
+chatInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage(chatInput.value)});
+document.querySelectorAll('.chat-suggestion').forEach(btn=>{
+  btn.addEventListener('click',()=>sendMessage(btn.textContent));
+});
+</script>
 </body>
 </html>
